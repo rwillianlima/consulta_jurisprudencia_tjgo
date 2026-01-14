@@ -1,0 +1,282 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <base href="https://projudi.tjgo.jus.br/">
+    
+    <meta content="text/html; charset=ISO-8859-1" http-equiv="CONTENT-TYPE" />
+    <title>Jurisprudência - Preenchimento Automático</title>
+    
+    <style type="text/css">
+        @import url("./css/Principal.css?v=20231017");
+        p { margin: 0 0 10px; }
+        .hr-dashed-line { border:1px dashed lightgray; color: #ffffff; background-color: #ffffff;}
+        .hr-dashed-white-line { border:2px solid white; color: white; }
+        .search-result { padding: 5px; margin-top: 10px;}
+        .search-result h4 { margin-bottom: 0; color: #3181c3; }
+        .search-result p { font-size: 12px; margin-top: 5px; }
+        .hlt1 { background-color: yellow;}
+        .tooltip {display: none;}
+        .tooltip-head { color:red;}
+    </style>
+    
+    <link rel="shortcut icon" href="./imagens/favicon.svg" />
+    <link rel="stylesheet" type="text/css" href="./css/jquery.powertip-light.min.css" />
+    
+    <script type='text/javascript' src='./js/jquery.js'></script>
+    <script type='text/javascript' src='./js/jquery.mask.min.js'></script>
+    <script type='text/javascript' src='./js/ui/jquery-ui.min.js'></script>
+    <script type="text/javascript" src="./js/jquery.powertip.min.js"></script>
+    <script type='text/javascript' src='./js/Funcoes.js'></script>
+    <script type='text/javascript' src='./js/Digitacao/AutoTab.js'></script>
+    <script type="text/javascript" src="./js/Digitacao/DigitarSoNumero.js" ></script>
+    <script type="text/javascript" src="./js/Digitacao/DigitarData.js" ></script>
+
+    <script>
+        // --- DADOS PARA OS COMBOS (Mantidos completos para você poder mudar se quiser) ---
+        const areas = [
+            {"codigo": "1", "descricao": "Cível"},
+            {"codigo": "2", "descricao": "Criminal"}
+        ];
+        
+        const tipos = [
+            {"areaId": "3", "servTipoId": "151", "codigo": "6", "descricao": "Turma Recursal Cível e Criminal"},
+            {"areaId": "3", "servTipoId": "151", "codigo": "66", "descricao": "UPJ Turma Recursal"},
+            {"areaId": "1", "servTipoId": "15", "codigo": "14", "descricao": "Câmaras Cíveis"},
+            {"areaId": "2", "servTipoId": "15", "codigo": "20", "descricao": "Câmaras Criminais"},
+            {"areaId": "1", "servTipoId": "15", "codigo": "21", "descricao": "Seções Cíveis"},
+            {"areaId": "2", "servTipoId": "15", "codigo": "46", "descricao": "Seção Criminal"},
+            {"areaId": "1", "servTipoId": "15", "codigo": "22", "descricao": "Órgão Especial"},
+            {"areaId": "2", "servTipoId": "15", "codigo": "22", "descricao": "Órgão Especial"},
+            {"areaId": "1", "servTipoId": "15", "codigo": "41", "descricao": "Conselho Superior de Magistratura"},
+            {"areaId": "1", "servTipoId": "15", "codigo": "10", "descricao": "Plantão 2º Grau - Órgão Especial"},
+            {"areaId": "2", "servTipoId": "15", "codigo": "10", "descricao": "Plantão 2º Grau - Órgão Especial"},
+            {"areaId": "1", "servTipoId": "15", "codigo": "70", "descricao": "Plantão 2º Grau - Câmaras Cíveis"},
+            {"areaId": "2", "servTipoId": "15", "codigo": "71", "descricao": "Plantão 2º Grau - Câmaras Criminais"},
+            {"areaId": "1", "servTipoId": "16", "codigo": "1", "descricao": "Juizado Especial Cível"},
+            {"areaId": "2", "servTipoId": "16", "codigo": "2", "descricao": "Juizado Especial Criminal"},
+            {"areaId": "1", "servTipoId": "16", "codigo": "3", "descricao": "Juizado Especial Cível e Criminal"},
+            {"areaId": "2", "servTipoId": "16", "codigo": "3", "descricao": "Juizado Especial Cível e Criminal"},
+            {"areaId": "1", "servTipoId": "16", "codigo": "26", "descricao": "Juizado Especial Fazenda Pública"},
+            {"areaId": "2", "servTipoId": "16", "codigo": "39", "descricao": "Juizado de Violência Doméstica"},
+            {"areaId": "1", "servTipoId": "16", "codigo": "27", "descricao": "Varas Cíveis"},
+            {"areaId": "2", "servTipoId": "16", "codigo": "47", "descricao": "Varas Criminais"},
+            {"areaId": "1", "servTipoId": "16", "codigo": "9", "descricao": "Família"},
+            {"areaId": "1", "servTipoId": "16", "codigo": "43", "descricao": "Infância e Juventude Cível"},
+            {"areaId": "2", "servTipoId": "16", "codigo": "44", "descricao": "Infância e Juventude Infracional"},
+            {"areaId": "2", "servTipoId": "16", "codigo": "11", "descricao": "Execução Penal"},
+            {"areaId": "2", "servTipoId": "16", "codigo": "63", "descricao": "Execução de Pena Alternativa"},
+            {"areaId": "1", "servTipoId": "16", "codigo": "45", "descricao": "Auditoria Militar Cível"},
+            {"areaId": "2", "servTipoId": "16", "codigo": "60", "descricao": "Auditoria Militar Criminal"},
+            {"areaId": "1", "servTipoId": "16", "codigo": "34", "descricao": "Fazenda Pública Estadual"},
+            {"areaId": "1", "servTipoId": "16", "codigo": "8", "descricao": "Fazenda Pública Estadual - Execução Fiscal"},
+            {"areaId": "1", "servTipoId": "16", "codigo": "35", "descricao": "Fazenda Pública Estadual Interior"},
+            {"areaId": "1", "servTipoId": "16", "codigo": "36", "descricao": "Fazenda Pública Municipal"},
+            {"areaId": "1", "servTipoId": "16", "codigo": "7", "descricao": "Fazenda Pública Municipal - Execução Fiscal"},
+            {"areaId": "1", "servTipoId": "16", "codigo": "37", "descricao": "Fazenda Pública Municipal Interior"},
+            {"areaId": "1", "servTipoId": "16", "codigo": "12", "descricao": "Fazenda Pública Mista"},
+            {"areaId": "1", "servTipoId": "16", "codigo": "69", "descricao": "Fazenda Pública Mista - Execução Fiscal"},
+            {"areaId": "1", "servTipoId": "16", "codigo": "42", "descricao": "Plantão 1º Grau"},
+            {"areaId": "2", "servTipoId": "16", "codigo": "42", "descricao": "Plantão 1º Grau"},
+            {"areaId": "1", "servTipoId": "16", "codigo": "72", "descricao": "UPJ Cível"},
+            {"areaId": "2", "servTipoId": "16", "codigo": "61", "descricao": "UPJ Criminal"},
+            {"areaId": "1", "servTipoId": "16", "codigo": "49", "descricao": "UPJ Sucessões"},
+            {"areaId": "1", "servTipoId": "16", "codigo": "58", "descricao": "UPJ Família"},
+            {"areaId": "2", "servTipoId": "16", "codigo": "67", "descricao": "UPJ de Violência Doméstica"},
+            {"areaId": "1", "servTipoId": "16", "codigo": "68", "descricao": "UPJ Família Interior"},
+            {"areaId": "1", "servTipoId": "16", "codigo": "81", "descricao": "UPJ Fazenda Pública Estadual"},
+            {"areaId": "1", "servTipoId": "16", "codigo": "82", "descricao": "UPJ Fazenda Pública Municipal"},
+            {"areaId": "1", "servTipoId": "16", "codigo": "83", "descricao": "UPJ dos Juizados Especiais Cíveis"},
+            {"areaId": "1", "servTipoId": "16", "codigo": "64", "descricao": "UPJ Juizado Especial da Fazenda Pública"}
+        ];
+
+        function submitForm(pos){
+            AlterarValue('PaginaAtual','2');
+            AlterarValue('PosicaoPaginaAtual', pos);
+            // Redireciona para o site real
+            document.getElementById('Formulario').action = "https://projudi.tjgo.jus.br/ConsultaJurisprudencia";
+            FormSubmit('Formulario');
+        }
+
+        function inicializarAreas(){
+            $("#Id_Area").find("option[value != '0']").remove();
+            var areaFiltrada = ($("#Id_Instancia").val() == "151") ? areas.filter(e => e.codigo == "0") : areas;
+            areaFiltrada.forEach((e) => $('#Id_Area').append('<option value="' + e.codigo + '">' + e.descricao + '</option>'));
+        }
+
+        function atualizarAreas (servTipoId){
+            $("#Id_Area").find("option[value != '0']").remove(); 
+            if (servTipoId != "151"){
+                areas.forEach((e) => $('#Id_Area').append('<option value="' + e.codigo + '">' + e.descricao + '</option>'));
+            }
+        }
+
+        function filtrarOpcoes (areaId, servTipoId){
+            var tiposFiltrados = [];
+            if (servTipoId == "0" && areaId =="0"){
+                tiposFiltrados = tipos;
+            } else {
+                if (servTipoId != "0"){ 
+                    tiposFiltrados = tipos.filter(e => e.servTipoId == servTipoId);
+                } 
+                if (areaId != "0"){
+                    if (servTipoId != "0"){
+                        tiposFiltrados = tiposFiltrados.filter(e => e.areaId == areaId);
+                    } else {
+                        tiposFiltrados = tipos.filter(e => e.areaId == areaId);
+                    }
+                }
+            }
+            const tiposDistintos = [...new Map(tiposFiltrados.map(item => [item['codigo'], item])).values()];
+            $("#Id_ServentiaSubTipo").find("option[value != '0']").remove();
+            tiposDistintos.forEach((e) => $('#Id_ServentiaSubTipo').append('<option value="' + e.codigo + '">' + e.descricao + '</option>'));
+        }
+
+        function limparFormPersonalizado() {
+             // Limpa mantendo suas preferencias
+             javascript:limparForm('Formulario');
+             location.reload(); // Recarrega para voltar aos seus padrões
+        }
+
+        // --- AQUI ESTÁ A MÁGICA DO PREENCHIMENTO AUTOMÁTICO ---
+        $(document).ready(function(){
+            $('#Texto').focus();
+            $('#ProcessoNumero').mask('9999999-99.9999.9.99.9999');
+            
+            $("#Texto").keypress(function(e){
+                if (e.which == 13){
+                    e.preventDefault();
+                    AlterarValue('PaginaAtual','2');
+                    document.forms[0].submit();
+                }
+            });
+            
+            $("#Id_Instancia").change(function(){
+                atualizarAreas($(this).val());
+                filtrarOpcoes($("#Id_Area").val(), $(this).val());
+            });
+            $("#Id_Area").change(function(){
+                filtrarOpcoes($(this).val(), $("#Id_Instancia").val());
+            });
+
+            // 1. DEFINE INSTÂNCIA COMO TRIBUNAL (15)
+            $("#Id_Instancia").val(15);
+            
+            // 2. INICIALIZA AS ÁREAS E DEFINE COMO CÍVEL (1)
+            inicializarAreas();
+            $("#Id_Area").val(1);
+            
+            // 3. DEFINE TIPO DE ATO COMO EMENTA
+            $("#ArquivoTipo").val("Ementa");
+            $("#Id_ArquivoTipo").val(124);
+
+            // Outras configurações padrão
+            $("#qtdeItensPagina").val(10);
+            
+            // Filtra as opções de órgão baseado nas suas escolhas (Tribunal + Cível)
+            filtrarOpcoes ($("#Id_Area").val(), $("#Id_Instancia").val());
+            $("#Id_ServentiaSubTipo").val(0); // Deixa "Todas as opções" selecionado
+        });
+    </script>
+</head>
+
+<body class="fundo_scroll">
+    <div id="pgn_cabecalho" class="pgn_cabecalho">
+         <div class="logoTJ" id="img_logotj"><h1>Processo Judicial</h1></div>
+    </div>
+    <div style="clear:both;width:1450px;height:28px;background-color:#ccc; margin: 0 auto;"></div>
+
+    <div id="divCorpo" class="divCorpo" style="margin-bottom:20px;">
+        <div class="area"><h2> &raquo; Novo Módulo de Pesquisa de Jurisprudência</h2></div>
+        
+        <div id="divLocalizar" class="divLocalizar">
+            <form id="Formulario" method="post" action="https://projudi.tjgo.jus.br/ConsultaJurisprudencia">
+                <input type="hidden" id="PaginaAtual" name="PaginaAtual" value="-1" />
+                <input type="hidden" id="PosicaoPaginaAtual" name="PosicaoPaginaAtual" value="0" />
+                <input type="hidden" id="Viewstate" name="Viewstate" value="" />
+                
+                <div id="divEditar" class="divEditar">
+                    <fieldset class="formEdicao">
+                        <div id="filtro-campo">
+                            
+                            <div class="col100 float_label_fixo clear">
+                                <input class="formEdicaoInput" id="Texto" name="Texto" type="text" placeholder='Utilize aspas duplas para realizar uma busca exata. Exemplo: "indenização por erro médico".' value=""/>
+                                <label class="formEdicaoLabel" for="Texto">Digite um termo para a pesquisa</label>
+                            </div>
+                            <br /><br />
+                            
+                            <div class="col35 clear">
+                                <label for="Id_Instancia">Instância</label>
+                                <select id="Id_Instancia" name="Id_Instancia">
+                                    <option value="0">Todas as instâncias</option>
+                                    <option value="16">1o Grau</option>
+                                    <option value="151">Turma de Uniformização / Turmas Recursais</option>
+                                    <option value="15">Tribunal</option>
+                                </select>
+                            </div>
+                            
+                            <div class="col25">
+                                <label for="Id_Area">Área</label>
+                                <select id="Id_Area" name="Id_Area">
+                                    <option value="0">Todas as áreas</option>
+                                </select>
+                            </div>
+                            
+                            <div class="col35">
+                                <label for="Id_ServentiaSubTipo">Órgão / Matéria</label>
+                                <select id="Id_ServentiaSubTipo" name="Id_ServentiaSubTipo">
+                                    <option value="0">Todas as opções</option>
+                                </select>
+                            </div>
+                            <br /><br />
+                            
+                            <div class="col35 float_label_fixo clear">
+                                <input class="formEdicaoInput AutoComplete" name="Serventia" id="Serventia" placeholder="Digite a Unidade Específica" type="text" size="60" maxlength="255" value=""/>
+                                <label class="formEdicaoLabel" for="Serventia">Unidade Específica</label>
+                                <input type="hidden" id="Id_Serventia" name="Id_Serventia" value="" />
+                            </div>
+                            
+                            <div class="col30 float_label_fixo">
+                                <input class="formEdicaoInput AutoComplete" name="Usuario" id="Usuario" placeholder="Digite o nome do Magistrado(a)" type="text" size="60" maxlength="255" value=""/>
+                                <label class="formEdicaoLabel" for="Usuario">Por Magistrada ou Magistrado</label>
+                                <input type="hidden" id="Id_Usuario" name="Id_Usuario" value="" />
+                            </div>
+                            
+                            <div class="col30 float_label_fixo">
+                                <input class="formEdicaoInput AutoComplete" name="ArquivoTipo" id="ArquivoTipo" placeholder="Digite o Tipo de Ato" type="text" size="60" maxlength="255" value=""/>
+                                <label class="formEdicaoLabel" for="ArquivoTipo">Tipo de Ato</label>
+                                <input type="hidden" id="Id_ArquivoTipo" name="Id_ArquivoTipo" value="" />
+                            </div>
+                            <br/><br/>
+                            
+                            <div class="col35 float_label_fixo clear">
+                                <input class="formEdicaoInput" name="ProcessoNumero" id="ProcessoNumero" type="text" size="30" maxlength="25" onkeyup="autoTab(this,25);" placeholder="Ex: 5000280-28.2010.8.09.0059" value=""/>
+                                <label class="formEdicaoLabel" for="ProcessoNumero">Número do Processo </label>
+                            </div>
+                            <br><br>
+                            
+                            <fieldset>
+                                <legend>Data de Publicação </legend>
+                                <div class="col10 float_label_fixo datepicker">
+                                    <label class="formEdicaoLabel" for="DataInicial">Data Inicial</label>
+                                    <input class="formEdicaoInput" placeholder="Data Inicial" name="DataInicial" id="DataInicial" type="text" size="10" maxlength="10" value="" onkeyup="mascara_data(this); autoTab(this,10)" onkeypress="return DigitarSoNumero(this, event)" />
+                                </div>
+                                <div class="col10 float_label_fixo datepicker">
+                                    <label class="formEdicaoLabel" for="DataFinal">Data Final</label>
+                                    <input class="formEdicaoInput" placeholder="Data Final" name="DataFinal" id="DataFinal" type="text" size="10" maxlength="10" value="" onkeyup="mascara_data(this); autoTab(this,10)" onkeypress="return DigitarSoNumero(this, event)" />
+                                </div>
+                            </fieldset>
+                        </div>
+                    </fieldset>
+                </div>
+                
+                <div style="margin:10px;">
+                    <div class="Centralizado">
+                        <input id="formLocalizarBotao" class="formLocalizarBotao" type="submit" name="Localizar" value="Consultar" onclick="javascript:submitForm(0);"/>
+                        <input name="imgInserir" type="button" value="Limpar / Resetar" title="Volta para seus padrões" onclick="limparFormPersonalizado()"/>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+</html>
